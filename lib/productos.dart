@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'productoNuevo.dart';
+import 'productoModifica.dart';
 
 /*
  * Colores 
@@ -131,7 +132,12 @@ class SingleProduct extends StatelessWidget {
                             Icons.edit,
                             color: Colors.black,
                           ),
-                          onPressed: () {}),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ModificaProducto()));
+                          }),
                       IconButton(
                           icon: Icon(
                             Icons.delete,
@@ -163,7 +169,8 @@ class AgregaProducto extends StatelessWidget {
                 size: 25,
               ),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => NuevoProducto()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => NuevoProducto()));
               },
               tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
             ),

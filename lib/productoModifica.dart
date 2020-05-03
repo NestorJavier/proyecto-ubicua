@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class NuevoProducto extends StatefulWidget {
+class ModificaProducto extends StatefulWidget {
   @override
-  NuevoProductoClass createState() => new NuevoProductoClass();
+  ModificaProductoClass createState() => new ModificaProductoClass();
 }
 
 class AgregaFoto extends StatefulWidget {
@@ -13,7 +13,7 @@ class AgregaFoto extends StatefulWidget {
   AgregaFotoClass createState() => new AgregaFotoClass();
 }
 
-class NuevoProductoClass extends State {
+class ModificaProductoClass extends State {
   //final String nombre;
 
   // En el constructor, se requiere el objeto nombre
@@ -53,7 +53,7 @@ class NuevoProductoClass extends State {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff9FC5E8),
-        title: Text("Nuevo Producto"),
+        title: Text("Modifica Producto"),
       ),
       body: SingleChildScrollView(
         child: Column(

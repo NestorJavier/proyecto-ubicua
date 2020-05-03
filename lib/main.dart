@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'resumen_compra.dart';
 import 'Principal.dart';
+import 'productos.dart';
 
 //GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
@@ -321,9 +322,7 @@ class _MainScreenState extends State<MainScreen> {
     Text(
       'Index 1: Promociones',
     ),
-    Text(
-      'Index 2: Productos',
-    ),
+    ProductosScreen(),
     Text(
       'Index 3: Perfil',
     ),

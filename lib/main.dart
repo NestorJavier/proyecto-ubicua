@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'resumen_compra.dart';
 import 'Principal.dart';
 import 'productos.dart';
+import 'TermCond.dart';
+import 'Perfil.dart';
 
 //GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
@@ -267,16 +269,33 @@ class RegisterScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Text("Al crear una cuenta, estás de acuerdo con nuestros \nTérminos y Condiciones", style: TextStyle(fontSize: 14)),
+              ],
+            ),
+            SizedBox(height: 10),
+            ButtonTheme(
+              minWidth: 340,
+              height: 50,
+              child: FlatButton(
+                color: Color(0xff9FC5E8),
+                child: Text(
+                  'Términos y Condiciones',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => new TermCond()));
+                },
+              ),
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.only(left: 25.0),
-                  child:  Text(
-                      "Al crear una cuenta, estás de acuerdo con nuestros"
-                          "\nTérminos y Condiciones.",
-                      style: TextStyle(fontSize: 13)),
-                ),
-
+                  padding: EdgeInsets.only(),
+                )
               ],
             ),
             SizedBox(height: 40),
@@ -323,9 +342,7 @@ class _MainScreenState extends State<MainScreen> {
       'Index 1: Promociones',
     ),
     ProductosScreen(),
-    Text(
-      'Index 3: Perfil',
-    ),
+    Perfil()
   ];
 
   void _onItemTapped(int index) {

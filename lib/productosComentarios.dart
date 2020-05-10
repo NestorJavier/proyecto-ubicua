@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'productoNuevo.dart';
 import 'productoModifica.dart';
-import 'productoComentarios.dart';
+
 /*
  * Colores 
  * rgb(159,197,232)                   Azul
@@ -11,7 +11,7 @@ import 'productoComentarios.dart';
  * 
  *  
  */
-class ProductosScreen extends StatelessWidget {
+class ComentariosScreen extends StatelessWidget {
   TextStyle getTextStyle() {
     return new TextStyle(
         fontWeight: FontWeight.w400, fontSize: 16.0, color: Colors.black);
@@ -105,17 +105,10 @@ class SingleProduct extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 5),
                   color: Color.fromRGBO(159, 197, 232, 0.5),
                   child: SizedBox(
-                    width: 95,
+                      width: 95,
                       child: RaisedButton(
-                        child: Image.asset(picture),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ComentariosScreen()));
-                      },
-                    ),
-                  ),                
+                          onPressed: () {},
+                          child: Image.asset(picture))),
                 ),
                 Expanded(
                   child: Column(

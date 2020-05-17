@@ -6,19 +6,77 @@ import 'Principal.dart';
 import 'productos.dart';
 import 'TermCond.dart';
 import 'Perfil.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import './services/auth_firebase.dart';
 //GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MaterialApp(
       title: 'Intercambio',
-      home: LoginScreen(),
+      home: RootPage(authFirebase: new AuthFirebase()),
     ),
   );
 }
 
-class LoginScreen extends StatelessWidget {
+class RootPage extends StatefulWidget{
+  RootPage({Key key, this.authFirebase}):super(key:key);
+
+  final AuthFirebase authFirebase;
+  @override
+  RootPageClass createState() => new RootPageClass();
+}
+
+enum AuthStatus{
+  notSignedIn,
+  signedIn,
+}
+
+class RootPageClass extends State<RootPage> {
+  AuthStatus authStatus = AuthStatus.notSignedIn;
+  @override
+  void initState() {
+    widget.authFirebase.currentUser().then((userId){
+      setState(() {
+        authStatus = userId != null ? AuthStatus.signedIn : AuthStatus.notSignedIn;
+      });
+    });
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    switch(authStatus){
+      case AuthStatus.notSignedIn:
+        return LoginScreen(auth: widget.authFirebase, onSignIn: ()=>updateAuthStatus(AuthStatus.signedIn),);
+      case AuthStatus.signedIn:
+       return MainScreen(onSignIn: ()=>updateAuthStatus(AuthStatus.notSignedIn), authFirebase: widget.authFirebase,);
+    }
+  }
+
+  void updateAuthStatus(AuthStatus auth){
+    setState(() {
+      authStatus=auth;
+    });
+  }
+}
+
+
+class LoginScreen extends StatefulWidget {
+  LoginScreen ({Key key, this.auth, this.onSignIn}):super(key:key);
+  final AuthFirebase auth;
+  final VoidCallback onSignIn;
+  @override
+  LoginScreenClass createState() => new LoginScreenClass();
+}
+
+
+class LoginScreenClass extends State<LoginScreen> {
+  
+  final databaseReference = Firestore.instance;
+  var email = TextEditingController();
+  var password = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +122,7 @@ class LoginScreen extends StatelessWidget {
                   width: 340,
                   height: 50,
                   child: TextField(
+                    controller: email,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'correo electrónico',
@@ -80,6 +139,7 @@ class LoginScreen extends StatelessWidget {
                   width: 340,
                   height: 50,
                   child: TextField(
+                    controller: password,
                     obscureText: true,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
@@ -112,10 +172,64 @@ class LoginScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainScreen()),
-                  );
+                  widget.auth.emailLogin(email: email.text, password: password.text)
+                      .then((res){
+                        print(res); 
+                        if(res is bool){
+                          if(res){
+                            widget.onSignIn();
+                          } else {
+                            print('Fallo inicio de sesión');
+                          }
+                        } else {
+                            print('Fallo inicio de sesión ' + res);
+                        }
+                      });
+                },
+              ),
+            ),
+            ButtonTheme(
+              minWidth: 340,
+              height: 50,
+              child: FlatButton(
+                color: Color(0xff9FC5E8),
+                child: Text(
+                  'Crear',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                createRecord();   
+                getData();
+                },
+              ),
+            ),
+            ButtonTheme(
+              minWidth: 340,
+              height: 50,
+              child: FlatButton(
+                color: Color(0xff9FC5E8),
+                child: Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                deleteData();
+                getData();
+                },
+              ),
+            ),
+            ButtonTheme(
+              minWidth: 340,
+              height: 50,
+              child: FlatButton(
+                color: Color(0xff9FC5E8),
+                child: Text(
+                  'update',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                updateData();
+                getData();
                 },
               ),
             ),
@@ -150,9 +264,73 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+  
+  void createRecord(/*var t, var d*/) async {
+    await databaseReference.collection("books")
+      .document("1")
+      .setData({
+        'title':'Flutter in action',
+        'description':'Complete programming guide to learn flutter'
+      });
+
+    DocumentReference ref = await databaseReference.collection("books")
+        .add({
+      'title':'Flutter in action',
+      'description':'Complete programming guide to learn flutter'
+    });
+
+    // DocumentReference ref = await databaseReference.collection("books")
+    //     .add({
+    //   'title': t,
+    //   'description': d
+    // });
+  }
+  
+  // Future getData() async{
+  //   QuerySnapshot q= await databaseReference.collection("books").getDocuments();
+  //   return q.documents;
+  // }
+
+  void getData() {
+    databaseReference.collection("books")
+      .getDocuments()
+      .then((QuerySnapshot snapshot){
+        snapshot.documents.forEach((f)=>print('${f.data}'));
+      });
+  }
+  void updateData() {
+    try{
+    databaseReference.collection("books")
+      .document("1")
+      .updateData({'description':'Head First Flutter'});
+    }catch(e){
+      print(e.toString());
+    }
+  }
+  void deleteData() {
+    try{
+    databaseReference.collection("books")
+      .document("1")
+      .delete();
+    }catch(e){
+      print(e.toString());
+    }
+  }
 }
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  final AuthFirebase auth = new AuthFirebase();
+  // final VoidCallback onSignIn;
+  @override
+  RegisterScreenClass createState() => new RegisterScreenClass();
+}
+
+
+class RegisterScreenClass extends State<RegisterScreen> {
+  var email = TextEditingController();
+  var password = TextEditingController();
+  var password2 = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,6 +388,7 @@ class RegisterScreen extends StatelessWidget {
                   width: 340,
                   height: 50,
                   child: TextField(
+                    controller: email,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Correo electrónico',
@@ -226,6 +405,7 @@ class RegisterScreen extends StatelessWidget {
                   width: 340,
                   height: 50,
                   child: TextField(
+                    controller: password,
                     obscureText: true,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
@@ -243,6 +423,7 @@ class RegisterScreen extends StatelessWidget {
                   width: 340,
                   height: 50,
                   child: TextField(
+                    controller: password2,
                     obscureText: true,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
@@ -263,6 +444,7 @@ class RegisterScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
+                  widget.auth.emailSignUpWithEmail(email: email.text, password: password.text);
                   Navigator.pop(context);
                 },
               ),
@@ -329,6 +511,9 @@ class RegisterScreen extends StatelessWidget {
 }
 
 class MainScreen extends StatefulWidget {
+  MainScreen ({Key key, this.onSignIn, this.authFirebase});
+  final VoidCallback onSignIn;
+  final AuthFirebase authFirebase;
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -351,6 +536,10 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void signOut(){
+    widget.authFirebase.signOut();
+    widget.onSignIn();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -373,8 +562,9 @@ class _MainScreenState extends State<MainScreen> {
             size: 28,
           ),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NotificationsScreen()));
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: (context) => NotificationsScreen()));
+            signOut();
           },
         ),
         actions: <Widget>[

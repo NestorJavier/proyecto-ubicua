@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/gestures.dart';
 import 'resumen_compra.dart';
 import 'Principal.dart';
 import 'productos.dart';
@@ -149,7 +150,7 @@ class LoginScreenClass extends State<LoginScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            /*SizedBox(height: 20),
             Row(
               //mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -160,8 +161,8 @@ class LoginScreenClass extends State<LoginScreen> {
                 Text("Mantener iniciada la sesión",
                     style: TextStyle(fontSize: 18)),
               ],
-            ),
-            SizedBox(height: 20),
+            ),*/
+            SizedBox(height: 40),
             ButtonTheme(
               minWidth: 340,
               height: 50,
@@ -453,23 +454,19 @@ class RegisterScreenClass extends State<RegisterScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                Text("Al crear una cuenta, estás de acuerdo con nuestros \nTérminos y Condiciones", style: TextStyle(fontSize: 14)),
-              ],
-            ),
-            SizedBox(height: 10),
-            ButtonTheme(
-              minWidth: 340,
-              height: 50,
-              child: FlatButton(
-                color: Color(0xff9FC5E8),
-                child: Text(
-                  'Términos y Condiciones',
-                  style: TextStyle(color: Colors.white),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(text: 'Al crear una cuenta, estás de acuerdo con nuestros\n ', style: TextStyle(color: Colors.black)),
+                      TextSpan(text: 'Términos y Condiciones',
+                        style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => Navigator.push(context, MaterialPageRoute(builder: (context) => new TermCond())),
+                      )
+                    ]
+                  ),
                 ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => new TermCond()));
-                },
-              ),
+              ],
             ),
             SizedBox(height: 10),
             Row(
@@ -555,7 +552,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        leading: IconButton(
+        leading: Text(""),/*IconButton(
           icon: Icon(
             Icons.notifications,
             color: Colors.white,
@@ -566,7 +563,7 @@ class _MainScreenState extends State<MainScreen> {
             //     MaterialPageRoute(builder: (context) => NotificationsScreen()));
             signOut();
           },
-        ),
+        ),*/
         actions: <Widget>[
           Padding(
               padding: EdgeInsets.only(right: 20.0),

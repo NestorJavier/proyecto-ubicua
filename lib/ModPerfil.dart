@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'Perfil.dart';
+import 'package:grouped_buttons/grouped_buttons.dart';
 
 class ModPerf extends StatefulWidget {
   @override
@@ -15,7 +15,234 @@ class _ModPerfState extends State<ModPerf> {
         backgroundColor: Color(0xff9FC5E8),
         title: Text("Modificar Perfil"),
       ),
-      body: new ListView(
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: CircleAvatar(
+                      radius: 100,
+                      backgroundColor: Color(0xFFF6B26B),
+                      child: ClipOval(
+                        child: new SizedBox(
+                          width: 180.0,
+                          height: 180.0,
+                          child: Image.network(
+                            "https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 60.0),
+                  child: IconButton(
+                    icon: Icon(Icons.camera_alt, size: 30.0),
+                    onPressed: () { },
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Nombre',
+                              style: TextStyle(
+                                  color: Colors.blueGrey, fontSize: 18.0)),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(0.0),
+                          margin: EdgeInsets.all(5.0),
+                          width: 200,
+                          height: 30,
+                          child: TextField(
+                            controller: new TextEditingController(text: 'Michelle'),
+                            enabled: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Apellidos',
+                              style: TextStyle(
+                                  color: Colors.blueGrey, fontSize: 18.0)),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(0.0),
+                          margin: EdgeInsets.all(5.0),
+                          width: 200,
+                          height: 30,
+                          child: TextField(
+                            controller: new TextEditingController(text: 'López González'),
+                            enabled: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Correo electrónico',
+                              style: TextStyle(
+                                  color: Colors.blueGrey, fontSize: 18.0)),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(0.0),
+                          margin: EdgeInsets.all(5.0),
+                          width: 200,
+                          height: 30,
+                          child: TextField(
+                            controller: new TextEditingController(text: 'correo@gmail.com'),
+                            enabled: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Celular',
+                              style: TextStyle(
+                                  color: Colors.blueGrey, fontSize: 18.0)),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(0.0),
+                          margin: EdgeInsets.all(5.0),
+                          width: 200,
+                          height: 30,
+                          child: TextField(
+                            controller: new TextEditingController(text: '444-123-4567'),
+                            enabled: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Métodos de pago',
+                              style: TextStyle(
+                                  color: Colors.blueGrey, fontSize: 18.0)),
+                        ),
+                        RadioButtonGroup(
+                          // margin:  EdgeInsets.only(left: 12.0),
+                          labels: <String>[
+                            "Efectivo",
+                            "PayPal"
+                          ],
+                          picked: "Efectivo",
+                          activeColor: Color(0xff9FC5E8),
+                          itemBuilder: (Radio rb, Text txt, int i){
+                            return Row(
+                              children: <Widget>[
+                                rb, txt,
+                              ],
+                            );
+                          },
+                        ),
+                        MaterialButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            //Navigator.push(context, MaterialPageRoute(builder: (context) => Perfil()));
+                          },
+                          color:Color(0xFFF6B26B), textColor: Colors.white,
+                          elevation: 0.2, child: new Text("Guardar")),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+/*
+new ListView(
         children: <Widget>[
             new Container(
               child: ListTile(
@@ -295,7 +522,5 @@ class _ModPerfState extends State<ModPerf> {
             ),
           )
         ]
-      ),
-    );
-  }
-}
+      )
+* */

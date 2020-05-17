@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'Categorias.dart';
 
 class PrincipalScreen extends StatelessWidget{
   TextStyle getTextStyle() {
@@ -59,10 +60,15 @@ class PrincipalScreen extends StatelessWidget{
                   child: FlatButton(
                     child: Text('Categoría', style: getTextStyle()),
                     color: Color(0xFFF6B26B),
-                    onPressed: () { },
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Categorias()),
+                      );
+                    },
                   ),
                 ),
-                ButtonTheme(
+                /*ButtonTheme(
                   minWidth: 100.0,
                   height: 30.0,
                   shape: RoundedRectangleBorder(
@@ -74,7 +80,7 @@ class PrincipalScreen extends StatelessWidget{
                     color: Color(0xFFF6B26B),
                     onPressed: () { },
                   ),
-                ),
+                ),*/
               ],
             ),
           ),
@@ -128,8 +134,8 @@ class SingleProduct extends StatelessWidget{
         //mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(top: 4.0),
-            child: Image.asset(picture, height: 80, width: 85),
+            padding: EdgeInsets.only(top: 4.0, bottom: 5.0),
+            child: Image.asset(picture, height: 60, width: 85),
           ),
           Padding(
             padding: EdgeInsets.only(bottom: 4.0),

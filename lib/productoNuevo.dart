@@ -56,113 +56,116 @@ class NuevoProductoClass extends State {
         title: Text("Nuevo Producto"),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Text(
-              'Nombre',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.orange,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(0.0),
-              margin: EdgeInsets.all(10.0),
-              width: 340,
-              child: TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: <Widget>[
+              Text(
+                'Nombre',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.orange,
                 ),
               ),
-            ),
-            Text(
-              'Descripción',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.orange,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(0.0),
-              margin: EdgeInsets.all(10.0),
-              width: 340,
-              height: 160,
-              child: TextField(
-                maxLines: 6,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            AgregaFoto(),
-            Row(
-              children: <Widget>[
-                Checkbox(
-                  value: isCheckedInter,
-                  onChanged: (value) {
-                    toggleCheckboxIntercambio(value);
-                  },
-                  activeColor: Colors.orange,
-                  checkColor: Colors.white,
-                  tristate: false,
-                ),
-                Text(
-                  'Intercambio',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.orange,
+              Container(
+                padding: EdgeInsets.all(0.0),
+                margin: EdgeInsets.all(10.0),
+                width: 340,
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
                   ),
                 ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Checkbox(
-                  value: isCheckedVenta,
-                  onChanged: (value) {
-                    toggleCheckboxVenta(value);
-                  },
-                  activeColor: Colors.orange,
-                  checkColor: Colors.white,
-                  tristate: false,
+              ),
+              Text(
+                'Descripción',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.orange,
                 ),
-                Text(
-                  'Venta',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.orange,
+              ),
+              Container(
+                padding: EdgeInsets.all(0.0),
+                margin: EdgeInsets.all(10.0),
+                width: 340,
+                height: 160,
+                child: TextField(
+                  maxLines: 6,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
                   ),
                 ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Text(
-                  '    Precio',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.orange,
+              ),
+              AgregaFoto(),
+              Row(
+                children: <Widget>[
+                  Checkbox(
+                    value: isCheckedInter,
+                    onChanged: (value) {
+                      toggleCheckboxIntercambio(value);
+                    },
+                    activeColor: Colors.orange,
+                    checkColor: Colors.white,
+                    tristate: false,
                   ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(0.0),
-                  margin: EdgeInsets.all(10.0),
-                  width: 50,
-                  height: 30,
-                  child: TextField(
-                    enabled: isCheckedVenta,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
+                  Text(
+                    'Intercambio',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orange,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Checkbox(
+                    value: isCheckedVenta,
+                    onChanged: (value) {
+                      toggleCheckboxVenta(value);
+                    },
+                    activeColor: Colors.orange,
+                    checkColor: Colors.white,
+                    tristate: false,
+                  ),
+                  Text(
+                    'Venta',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Text(
+                    '    Precio',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(0.0),
+                    margin: EdgeInsets.all(10.0),
+                    width: 90,
+                    height: 30,
+                    child: TextField(
+                      enabled: isCheckedVenta,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        )
       ),
     );
   }

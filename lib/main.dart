@@ -445,8 +445,12 @@ class RegisterScreenClass extends State<RegisterScreen> {
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
-                  widget.auth.emailSignUpWithEmail(email: email.text, password: password.text);
-                  Navigator.pop(context);
+                  if(password.text == password.text){
+                    widget.auth.emailSignUpWithEmail(email: email.text, password: password.text);
+                    Navigator.pop(context);
+                  }else{
+                    print('La contraseña no coincide');
+                  }
                 },
               ),
             ),
@@ -552,18 +556,16 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        leading: Text(""),/*IconButton(
+        leading: IconButton(
           icon: Icon(
-            Icons.notifications,
+            Icons.exit_to_app,
             color: Colors.white,
             size: 28,
           ),
           onPressed: () {
-            // Navigator.push(context,
-            //     MaterialPageRoute(builder: (context) => NotificationsScreen()));
             signOut();
           },
-        ),*/
+        ),
         actions: <Widget>[
           Padding(
               padding: EdgeInsets.only(right: 20.0),

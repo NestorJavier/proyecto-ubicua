@@ -9,7 +9,6 @@ import 'TermCond.dart';
 import 'Perfil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import './services/auth_firebase.dart';
-//GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -150,18 +149,6 @@ class LoginScreenClass extends State<LoginScreen> {
                 ),
               ],
             ),
-            /*SizedBox(height: 20),
-            Row(
-              //mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(left: 15.0),
-                  child: Checkbox(value: false, onChanged: (bool) {}),
-                ),
-                Text("Mantener iniciada la sesión",
-                    style: TextStyle(fontSize: 18)),
-              ],
-            ),*/
             SizedBox(height: 40),
             ButtonTheme(
               minWidth: 340,
@@ -186,51 +173,6 @@ class LoginScreenClass extends State<LoginScreen> {
                             print('Fallo inicio de sesión ' + res);
                         }
                       });
-                },
-              ),
-            ),
-            ButtonTheme(
-              minWidth: 340,
-              height: 50,
-              child: FlatButton(
-                color: Color(0xff9FC5E8),
-                child: Text(
-                  'Crear',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                createRecord();   
-                getData();
-                },
-              ),
-            ),
-            ButtonTheme(
-              minWidth: 340,
-              height: 50,
-              child: FlatButton(
-                color: Color(0xff9FC5E8),
-                child: Text(
-                  'Eliminar',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                deleteData();
-                getData();
-                },
-              ),
-            ),
-            ButtonTheme(
-              minWidth: 340,
-              height: 50,
-              child: FlatButton(
-                color: Color(0xff9FC5E8),
-                child: Text(
-                  'update',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                updateData();
-                getData();
                 },
               ),
             ),
@@ -265,63 +207,10 @@ class LoginScreenClass extends State<LoginScreen> {
       ),
     );
   }
-  
-  void createRecord(/*var t, var d*/) async {
-    await databaseReference.collection("books")
-      .document("1")
-      .setData({
-        'title':'Flutter in action',
-        'description':'Complete programming guide to learn flutter'
-      });
-
-    DocumentReference ref = await databaseReference.collection("books")
-        .add({
-      'title':'Flutter in action',
-      'description':'Complete programming guide to learn flutter'
-    });
-
-    // DocumentReference ref = await databaseReference.collection("books")
-    //     .add({
-    //   'title': t,
-    //   'description': d
-    // });
-  }
-  
-  // Future getData() async{
-  //   QuerySnapshot q= await databaseReference.collection("books").getDocuments();
-  //   return q.documents;
-  // }
-
-  void getData() {
-    databaseReference.collection("books")
-      .getDocuments()
-      .then((QuerySnapshot snapshot){
-        snapshot.documents.forEach((f)=>print('${f.data}'));
-      });
-  }
-  void updateData() {
-    try{
-    databaseReference.collection("books")
-      .document("1")
-      .updateData({'description':'Head First Flutter'});
-    }catch(e){
-      print(e.toString());
-    }
-  }
-  void deleteData() {
-    try{
-    databaseReference.collection("books")
-      .document("1")
-      .delete();
-    }catch(e){
-      print(e.toString());
-    }
-  }
 }
 
 class RegisterScreen extends StatefulWidget {
   final AuthFirebase auth = new AuthFirebase();
-  // final VoidCallback onSignIn;
   @override
   RegisterScreenClass createState() => new RegisterScreenClass();
 }

@@ -1,13 +1,12 @@
+import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class AgregaFoto extends StatefulWidget {
-  @override
-  AgregaFotoClass createState() => new AgregaFotoClass();
-}
+import 'package:uuid/uuid.dart';
+import 'DBHelper.dart';
 
 class NuevoProducto extends StatefulWidget {
   @override
@@ -23,6 +22,8 @@ class NuevoProductoClass extends State<NuevoProducto> {
   final txtecColor = TextEditingController();
   final txtecPrecio = TextEditingController();
   final databaseReference = Firestore.instance;
+  File uploadImage;
+  var dbHelper = DBHelper();
 
   @override
   void dispose() {
@@ -34,7 +35,8 @@ class NuevoProductoClass extends State<NuevoProducto> {
     super.dispose();
   }
 
-  String sCategoria = 'calzado';
+  String personUID = '';
+  String sCategoria = 'Calzado';
   Genero _genero = Genero.femenino;
   bool intercambio = false;
 
@@ -89,7 +91,13 @@ class NuevoProductoClass extends State<NuevoProducto> {
                 ),
               ),
             ),
-            AgregaFoto(),
+            AgregaFoto(
+              updateImageState: (File image) {
+                setState(() {
+                  uploadImage = image;
+                });
+              },
+            ),
             Column(
               children: <Widget>[
                 ListTile(
@@ -157,7 +165,7 @@ class NuevoProductoClass extends State<NuevoProducto> {
                     sCategoria = newValue;
                   });
                 },
-                items: <String>['calzado', 'ropa', 'niños']
+                items: <String>['Calzado', 'Mujer', 'Accesorios', 'Hombre', 'Niños']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -293,14 +301,29 @@ class NuevoProductoClass extends State<NuevoProducto> {
                 ),
                 color: Color(0xff9FC5E8),
                 onPressed: () {
-                  createRecord(txtecNombre.text, txtecDescripcion.text, genero(_genero), sCategoria, intercambio,
-                      precio(intercambio), txtecTalla.text, txtecColor.text);
-                  txtecNombre.text = "";
-                  txtecDescripcion.text = "";
-                  txtecPrecio.text = "";
-                  txtecTalla.text = "";
-                  txtecColor.text = "";
-                  setState(() {});
+                  dbHelper.getPersonUID().then((res) {
+                    setState(() {
+                      personUID = res;
+
+                      createRecord(
+                          personUID,
+                          txtecNombre.text,
+                          txtecDescripcion.text,
+                          genero(_genero),
+                          sCategoria,
+                          intercambio,
+                          precio(intercambio),
+                          txtecTalla.text,
+                          txtecColor.text,
+                          uploadImage);
+                      txtecNombre.text = "";
+                      txtecDescripcion.text = "";
+                      txtecPrecio.text = "";
+                      txtecTalla.text = "";
+                      txtecColor.text = "";
+                      setState(() {});
+                    });
+                  });
                 },
               ),
             ),
@@ -311,6 +334,7 @@ class NuevoProductoClass extends State<NuevoProducto> {
   }
 
   void createRecord(
+      String personUid,
       var sNombre,
       var sDescripcion,
       var sGenero,
@@ -318,10 +342,11 @@ class NuevoProductoClass extends State<NuevoProducto> {
       bool bIntercambio,
       var sPrecio,
       var sTalla,
-      var sColor
-    ) async {
+      var sColor,
+      File image) async {
     DocumentReference ref =
         await databaseReference.collection("productos").add({
+      'personaUID': personUid,
       'title': sNombre,
       'description': sDescripcion,
       'genero': sGenero,
@@ -331,65 +356,78 @@ class NuevoProductoClass extends State<NuevoProducto> {
       'talla': sTalla,
       'color': sColor,
     });
+    if (image != null) {
+      var imageName = Uuid().v1();
+      var path = "/users/$personUid/$imageName.jpg";
+
+      final StorageReference storageReference =
+          FirebaseStorage().ref().child(path);
+      final StorageUploadTask uploadTask = storageReference.putFile(image);
+      final StreamSubscription<StorageTaskEvent> streamSubscription =
+          uploadTask.events.listen((event) {
+        // You can use this to notify yourself or your user in any kind of way.
+        // For example: you could use the uploadTask.events stream in a StreamBuilder instead
+        // to show your user what the current status is. In that case, you would not need to cancel any
+        // subscription as StreamBuilder handles this automatically.
+
+        // Here, every StorageTaskEvent concerning the upload is printed to the logs.
+        print('EVENT ${event.type}');
+      });
+      // Cancel your subscription when done.
+      await uploadTask.onComplete;
+      streamSubscription.cancel();
+      ref.setData({
+        'imageURL': (await storageReference.getDownloadURL()).toString(),
+      }, merge: true);
+    }
+    Navigator.pop(context);
   }
 
   genero(result) {
     switch (result) {
       case Genero.femenino:
         return "femenino";
-      break;
+        break;
       case Genero.masculino:
         return "masculino";
-      break;
+        break;
     }
   }
 
   precio(bool intercambio) {
-    if(intercambio){
+    if (intercambio) {
       return "";
-    }else{
+    } else {
       return txtecPrecio.text;
     }
   }
-
 }
 
-class AgregaFotoClass extends State {
-  Future<File> imageFile;
+class AgregaFoto extends StatefulWidget {
+  AgregaFoto({
+    Key key,
+    this.updateImageState,
+  }) : super(key: key);
+  final Function(File) updateImageState;
+  @override
+  AgregaFotoClass createState() => new AgregaFotoClass();
+}
 
-  pickImageFromGallery(ImageSource source) {
+class AgregaFotoClass extends State<AgregaFoto> {
+  Future<File> imageFile;
+  File _image;
+
+  Future getImage(ImageSource source) async {
+    var image = await ImagePicker.pickImage(source: source);
     setState(() {
-      imageFile = ImagePicker.pickImage(source: source);
+      _image = image;
     });
+    widget.updateImageState(image);
   }
 
   Widget showImage() {
-    return FutureBuilder<File>(
-      future: imageFile,
-      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.data != null) {
-          return Image.file(
-            snapshot.data,
-            width: 300,
-            height: 300,
-          );
-        } else if (snapshot.error != null) {
-          return const Text(
-            'Error al cargar la imagen',
-            textAlign: TextAlign.center,
-          );
-        } else {
-          return const Text(
-            'Imagen no seleccionada',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.orange,
-            ),
-          );
-        }
-      },
+    return Center(
+      child: _image == null ? Text('No image selected.') : Image.file(_image),
     );
   }
 
@@ -412,7 +450,7 @@ class AgregaFotoClass extends State {
                   size: 25,
                 ),
                 onPressed: () {
-                  pickImageFromGallery(ImageSource.gallery);
+                  getImage(ImageSource.gallery);
                 },
                 tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
               ),

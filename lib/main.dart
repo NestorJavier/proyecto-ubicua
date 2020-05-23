@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -24,6 +25,7 @@ class RootPage extends StatefulWidget {
   RootPage({Key key, this.authFirebase}) : super(key: key);
 
   final AuthFirebase authFirebase;
+
   @override
   RootPageClass createState() => new RootPageClass();
 }
@@ -35,12 +37,13 @@ enum AuthStatus {
 
 class RootPageClass extends State<RootPage> {
   AuthStatus authStatus = AuthStatus.notSignedIn;
+
   @override
   void initState() {
     widget.authFirebase.currentUser().then((userId) {
       setState(() {
         authStatus =
-            userId != null ? AuthStatus.signedIn : AuthStatus.notSignedIn;
+        userId != null ? AuthStatus.signedIn : AuthStatus.notSignedIn;
       });
     });
     super.initState();
@@ -73,6 +76,7 @@ class LoginScreen extends StatefulWidget {
   LoginScreen({Key key, this.auth, this.onSignIn}) : super(key: key);
   final AuthFirebase auth;
   final VoidCallback onSignIn;
+
   @override
   LoginScreenClass createState() => new LoginScreenClass();
 }
@@ -84,6 +88,7 @@ class LoginScreenClass extends State<LoginScreen> {
   String invalidPasswordMessage =
       "The password is invalid or the user does not have a password.";
   String invalidEmailMessage = "The email address is badly formatted.";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,7 +176,6 @@ class LoginScreenClass extends State<LoginScreen> {
                   widget.auth
                       .emailLogin(email: email.text, password: password.text)
                       .then((res) {
-                    print(res);
                     if (res is String) {
                       dbHelper.savePersonaID(res);
                       widget.onSignIn();
@@ -217,14 +221,18 @@ class LoginScreenClass extends State<LoginScreen> {
 
 class RegisterScreen extends StatefulWidget {
   final AuthFirebase auth = new AuthFirebase();
+
   @override
   RegisterScreenClass createState() => new RegisterScreenClass();
 }
 
 class RegisterScreenClass extends State<RegisterScreen> {
+  var nombre = TextEditingController();
   var email = TextEditingController();
   var password = TextEditingController();
   var password2 = TextEditingController();
+  var dbHelper = DBHelper();
+  final databaseReference = Firestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +275,7 @@ class RegisterScreenClass extends State<RegisterScreen> {
                   width: 340,
                   height: 50,
                   child: TextField(
+                    controller: nombre,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Nombre',
@@ -341,7 +350,11 @@ class RegisterScreenClass extends State<RegisterScreen> {
                 onPressed: () {
                   if (password.text == password.text) {
                     widget.auth.emailSignUpWithEmail(
-                        email: email.text, password: password.text);
+                        email: email.text, password: password.text).then((res) {
+                      createProfileRecord(id: res, name: nombre.text,
+                          email: email.text);
+                    });
+
                     Navigator.pop(context);
                   } else {
                     print('La contraseña no coincide');
@@ -357,7 +370,7 @@ class RegisterScreenClass extends State<RegisterScreen> {
                   text: TextSpan(children: [
                     TextSpan(
                         text:
-                            'Al crear una cuenta, estás de acuerdo con nuestros\n ',
+                        'Al crear una cuenta, estás de acuerdo con nuestros\n ',
                         style: TextStyle(color: Colors.black)),
                     TextSpan(
                       text: 'Términos y Condiciones',
@@ -411,12 +424,26 @@ class RegisterScreenClass extends State<RegisterScreen> {
       ),
     );
   }
+
+  void createProfileRecord({String id, name, email}) {
+    databaseReference.collection("Perfiles").add(
+        {
+          'IdUsuario': id,
+          'Nombre': name,
+          'Apellidos': '',
+          'Email': email,
+          'Celular': ''
+        }
+    );
+  }
 }
 
 class MainScreen extends StatefulWidget {
   MainScreen({Key key, this.onSignIn, this.authFirebase});
+
   final VoidCallback onSignIn;
   final AuthFirebase authFirebase;
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -532,121 +559,121 @@ class NotificationsScreen extends StatelessWidget {
       ),
       body: Center(
           child: Column(
-        children: <Widget>[
-          Column(
             children: <Widget>[
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              Column(
                 children: <Widget>[
-                  Column(
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        '03/02/2020                                       '
-                        '         ',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      Text(
-                        ' El repartidor intentó entregar tu pedido.\n'
-                        ' Comunícate con él.',
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      Column(
                         children: <Widget>[
-                          SizedBox(
-                            width: 300,
+                          Text(
+                            '03/02/2020                                       '
+                                '         ',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.orange,
+                            ),
                           ),
-                          Icon(Icons.cancel),
+                          Text(
+                            ' El repartidor intentó entregar tu pedido.\n'
+                                ' Comunícate con él.',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              SizedBox(
+                                width: 300,
+                              ),
+                              Icon(Icons.cancel),
+                            ],
+                          ),
                         ],
                       ),
                     ],
                   ),
-                ],
-              ),
-              Divider(),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Column(
+                  Divider(),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        '03/02/2020                                       '
-                        '         ',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      Text(
-                        '¡Un objeto en tu lista de deseos\nestá en oferta!',
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      Column(
                         children: <Widget>[
-                          SizedBox(
-                            width: 300,
+                          Text(
+                            '03/02/2020                                       '
+                                '         ',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.orange,
+                            ),
                           ),
-                          Icon(Icons.cancel),
+                          Text(
+                            '¡Un objeto en tu lista de deseos\nestá en oferta!',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              SizedBox(
+                                width: 300,
+                              ),
+                              Icon(Icons.cancel),
+                            ],
+                          ),
                         ],
                       ),
                     ],
                   ),
-                ],
-              ),
-              Divider(),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Column(
+                  Divider(),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        '02/02/2020                                       '
-                        '         ',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      Text(
-                        'Tu pedido está en camino.\n'
-                        'Recíbelo en la dirección acordada...',
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      Column(
                         children: <Widget>[
-                          SizedBox(
-                            width: 300,
+                          Text(
+                            '02/02/2020                                       '
+                                '         ',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.orange,
+                            ),
                           ),
-                          Icon(Icons.cancel),
+                          Text(
+                            'Tu pedido está en camino.\n'
+                                'Recíbelo en la dirección acordada...',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              SizedBox(
+                                width: 300,
+                              ),
+                              Icon(Icons.cancel),
+                            ],
+                          ),
                         ],
                       ),
                     ],
                   ),
+                  Divider(),
+                  SizedBox(height: 10),
                 ],
               ),
-              Divider(),
-              SizedBox(height: 10),
             ],
-          ),
-        ],
-      )),
+          )),
     );
   }
 }
@@ -661,97 +688,97 @@ class CartScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
           child: new Column(
-        children: <Widget>[
-          Container(
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(left: 25.0),
-                  child: Text(
-                    ' Subtotal: \$400',
-                    style: TextStyle(fontSize: 18),
-                  ),
+            children: <Widget>[
+              Container(
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(left: 25.0),
+                      child: Text(
+                        ' Subtotal: \$400',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            height: 50,
-          ),
-          ButtonTheme(
-            minWidth: 200.0,
-            height: 50.0,
-            child: FlatButton(
-              child: Text(
-                'Proceder al Pago',
-                style: TextStyle(fontSize: 18.0),
+                height: 50,
               ),
-              color: Color(0xff9FC5E8),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ResumenCompraScreen()));
-              },
-            ),
-          ),
-          SizedBox(height: 10),
-          Divider(
-            color: Colors.black,
-          ),
-          SizedBox(height: 10),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Image.asset(
-                  'img/Camisa.png',
+              ButtonTheme(
+                minWidth: 200.0,
+                height: 50.0,
+                child: FlatButton(
+                  child: Text(
+                    'Proceder al Pago',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                  color: Color(0xff9FC5E8),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ResumenCompraScreen()));
+                  },
                 ),
-                Column(
+              ),
+              SizedBox(height: 10),
+              Divider(
+                color: Colors.black,
+              ),
+              SizedBox(height: 10),
+              Container(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Text(
-                      'Camisa Lisa Azul Talla M',
-                      style: TextStyle(fontSize: 16),
+                    Image.asset(
+                      'img/Camisa.png',
                     ),
-                    Text(
-                      'MXN300.00',
-                      style: TextStyle(fontSize: 16),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Text(
+                          'Camisa Lisa Azul Talla M',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'MXN300.00',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            height: 150,
-          ),
-          SizedBox(height: 10),
-          Divider(
-            color: Colors.black38,
-          ),
-          SizedBox(height: 10),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Image.asset('img/Pantalon.png'),
-                Column(
+                height: 150,
+              ),
+              SizedBox(height: 10),
+              Divider(
+                color: Colors.black38,
+              ),
+              SizedBox(height: 10),
+              Container(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Text(
-                      'Pantalón de Mezclilla Talla 32',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      'MXN100.00',
-                      style: TextStyle(fontSize: 16),
+                    Image.asset('img/Pantalon.png'),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Text(
+                          'Pantalón de Mezclilla Talla 32',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'MXN100.00',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            height: 150,
-          ),
-          SizedBox(height: 10),
-        ],
-      )),
+                height: 150,
+              ),
+              SizedBox(height: 10),
+            ],
+          )),
     );
   }
 }

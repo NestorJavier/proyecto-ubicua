@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'DBHelper.dart';
 import 'ModPerfil.dart';
 import 'TermCond.dart';
 
@@ -9,8 +11,18 @@ class Perfil extends StatefulWidget {
 }
 
 class _PerfilState extends State<Perfil> {
+  var loaded = 0;
+  var email = TextEditingController();
+  var nombre = TextEditingController();
+  var dbHelper = DBHelper();
+  final databaseReference = Firestore.instance;
+
   @override
   Widget build(BuildContext context) {
+    dbHelper.getPersonUID().then((res) {
+      loadProfile(id: res);
+    });
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -53,13 +65,14 @@ class _PerfilState extends State<Perfil> {
                       children: <Widget>[
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Michelle López González',
+                          child: Text(nombre.text,
                               style: TextStyle(
                                   color: Colors.black, fontSize: 18.0)),
                         ),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('correo@gmail.com',
+                          child: Text(
+                              email.text,
                               style: TextStyle(
                                   color: Colors.grey, fontSize: 18.0)),
                         ),
@@ -115,7 +128,15 @@ class _PerfilState extends State<Perfil> {
               padding: EdgeInsets.only(left: 40.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ModPerf()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ModPerf())).then(
+                          (value) {
+                        dbHelper.getPersonUID().then((res) {
+                          loaded = 0;
+                          loadProfile(id: res);
+                        });
+                      }
+                  );
                 },
                 child: Row(
                   children: <Widget>[
@@ -153,19 +174,7 @@ class _PerfilState extends State<Perfil> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            Divider(color: Colors.black45),
-            GestureDetector(
-              onTap: () { print('cerrar sesión'); },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text('Cerrar Sesión',
-                    style: TextStyle(color: Color(0xFFF6B26B),fontWeight: FontWeight.w500, fontSize: 20)),
-                ],
-              )
-            )
+            SizedBox(height: 20)
             /*Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -214,7 +223,23 @@ class _PerfilState extends State<Perfil> {
           ],
         ),
       ),
-      );
+    );
+  }
+
+  void loadProfile({String id}) {
+    databaseReference.collection('Perfiles').where('IdUsuario', isEqualTo: id)
+        .snapshots().listen(
+            (data) {
+          if (loaded == 0) {
+            setState(() {
+              nombre.text = '${data.documents[0]['Nombre']} ${data
+                  .documents[0]['Apellidos']}';
+              email.text = '${data.documents[0]['Email']}';
+              loaded = 1;
+            });
+          }
+        }
+    );
   }
 }
 

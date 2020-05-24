@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
+
+import 'DBHelper.dart';
 
 class ModPerf extends StatefulWidget {
   @override
@@ -8,8 +11,19 @@ class ModPerf extends StatefulWidget {
 }
 
 class _ModPerfState extends State<ModPerf> {
+  var email = TextEditingController();
+  var nombre = TextEditingController();
+  var apellidos = TextEditingController();
+  var celular = TextEditingController();
+  var dbHelper = DBHelper();
+  final databaseReference = Firestore.instance;
+
   @override
   Widget build(BuildContext context) {
+    dbHelper.getPersonUID().then((res) {
+      loadProfile(id: res);
+    });
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff9FC5E8),
@@ -72,7 +86,7 @@ class _ModPerfState extends State<ModPerf> {
                           width: 200,
                           height: 30,
                           child: TextField(
-                            controller: new TextEditingController(text: 'Michelle'),
+                            controller: nombre,
                             enabled: true,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -106,7 +120,7 @@ class _ModPerfState extends State<ModPerf> {
                           width: 200,
                           height: 30,
                           child: TextField(
-                            controller: new TextEditingController(text: 'López González'),
+                            controller: apellidos,
                             enabled: true,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -137,11 +151,11 @@ class _ModPerfState extends State<ModPerf> {
                         Container(
                           padding: EdgeInsets.all(0.0),
                           margin: EdgeInsets.all(5.0),
-                          width: 200,
+                          width: 250,
                           height: 30,
                           child: TextField(
-                            controller: new TextEditingController(text: 'correo@gmail.com'),
-                            enabled: true,
+                            controller: email,
+                            enabled: false,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
                             ),
@@ -174,7 +188,7 @@ class _ModPerfState extends State<ModPerf> {
                           width: 200,
                           height: 30,
                           child: TextField(
-                            controller: new TextEditingController(text: '444-123-4567'),
+                            controller: celular,
                             enabled: true,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -219,23 +233,57 @@ class _ModPerfState extends State<ModPerf> {
                           },
                         ),
                         MaterialButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            //Navigator.push(context, MaterialPageRoute(builder: (context) => Perfil()));
-                          },
-                          color:Color(0xFFF6B26B), textColor: Colors.white,
-                          elevation: 0.2, child: new Text("Guardar")),
+                            onPressed: () {
+                              dbHelper.getPersonUID().then((res) {
+                                saveProfile(id: res);
+                              });
+                              Navigator.pop(context);
+                            },
+                            color: Color(0xFFF6B26B),
+                            textColor: Colors.white,
+                            elevation: 0.2,
+                            child: new Text("Guardar")),
                       ],
                     ),
                   ),
                 ),
               ],
             ),
-
-
           ],
         ),
       ),
+    );
+  }
+
+  void loadProfile({String id}) {
+    databaseReference.collection('Perfiles').where('IdUsuario', isEqualTo: id)
+        .snapshots().listen(
+            (data) {
+          nombre.text = '${data.documents[0]['Nombre']}';
+          apellidos.text = '${data.documents[0]['Apellidos']}';
+          email.text = '${data.documents[0]['Email']}';
+          celular.text = '${data.documents[0]['Celular']}';
+        }
+    );
+  }
+
+  void saveProfile({String id}) async
+  {
+    print("ID: " + id);
+    String key;
+
+    databaseReference.collection('Perfiles').where('IdUsuario', isEqualTo: id)
+        .snapshots().listen(
+            (data) {
+          key = data.documents[0].documentID.toString();
+          databaseReference.collection('Perfiles').document(key).updateData(
+              {
+                'Nombre': nombre.text,
+                'Apellidos': apellidos.text,
+                'Celular': celular.text
+              }
+          );
+        }
     );
   }
 }

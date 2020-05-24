@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'DBHelper.dart';
 import 'ModPerfil.dart';
 import 'TermCond.dart';
 
@@ -9,8 +11,18 @@ class Perfil extends StatefulWidget {
 }
 
 class _PerfilState extends State<Perfil> {
+  var loaded = 0;
+  var email = TextEditingController();
+  var nombre = TextEditingController();
+  var dbHelper = DBHelper();
+  final databaseReference = Firestore.instance;
+
   @override
   Widget build(BuildContext context) {
+    dbHelper.getPersonUID().then((res) {
+      loadProfile(id: res);
+    });
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -53,13 +65,14 @@ class _PerfilState extends State<Perfil> {
                       children: <Widget>[
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Michelle López González',
+                          child: Text(nombre.text,
                               style: TextStyle(
                                   color: Colors.black, fontSize: 18.0)),
                         ),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('correo@gmail.com',
+                          child: Text(
+                              email.text,
                               style: TextStyle(
                                   color: Colors.grey, fontSize: 18.0)),
                         ),
@@ -115,7 +128,15 @@ class _PerfilState extends State<Perfil> {
               padding: EdgeInsets.only(left: 40.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ModPerf()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ModPerf())).then(
+                          (value) {
+                        dbHelper.getPersonUID().then((res) {
+                          loaded = 0;
+                          loadProfile(id: res);
+                        });
+                      }
+                  );
                 },
                 child: Row(
                   children: <Widget>[
@@ -154,23 +175,203 @@ class _PerfilState extends State<Perfil> {
               ),
             ),
             SizedBox(height: 20)
+            /*Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Métodos de pago',
+                              style: TextStyle(
+                                  color: Colors.blueGrey, fontSize: 18.0)),
+                        ),
+                        RadioButtonGroup(
+                          // margin:  EdgeInsets.only(left: 12.0),
+                          labels: <String>[
+                            "Efectivo",
+                            "PayPal"
+                          ],
+                          picked: "Efectivo",
+                          activeColor: Color(0xff9FC5E8),
+                          itemBuilder: (Radio rb, Text txt, int i){
+                            return Row(
+                              children: <Widget>[
+                                rb, txt,
+                              ],
+                            );
+                          },
+                        ),
+                        MaterialButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              //Navigator.push(context, MaterialPageRoute(builder: (context) => Perfil()));
+                            },
+                            color:Color(0xFFF6B26B), textColor: Colors.white,
+                            elevation: 0.2, child: new Text("Guardar")),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),*/
+
+
           ],
         ),
       ),
-      );
+    );
+  }
+
+  void loadProfile({String id}) {
+    databaseReference.collection('Perfiles').where('IdUsuario', isEqualTo: id)
+        .snapshots().listen(
+            (data) {
+          if (loaded == 0) {
+            setState(() {
+              nombre.text = '${data.documents[0]['Nombre']} ${data
+                  .documents[0]['Apellidos']}';
+              email.text = '${data.documents[0]['Email']}';
+              loaded = 1;
+            });
+          }
+        }
+    );
   }
 }
+
 /*
-Divider(color: Colors.black45),
-GestureDetector(
-              onTap: () { print('cerrar sesión'); },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+ new ListView(
+        children: <Widget>[
+          new Container(
+            child: Text('Nombre', style: TextStyle(fontSize: 20, color: Colors.black),),
+          ),
+          new Container(
+            child: ListTile(
+              title: new Row(
                 children: <Widget>[
-                  Text('Cerrar Sesión',
-                    style: TextStyle(color: Color(0xFFF6B26B),fontWeight: FontWeight.w500, fontSize: 20)),
+                  Expanded(
+                    child: new Container(
+                      child: Text('Sofia', style: TextStyle(fontSize: 40, color: Colors.black),),
+                      color: Colors.white12,
+                    ),
+                  ),
+                  Expanded(
+                    child: new Container(
+                      child: new UserAccountsDrawerHeader(
+                        currentAccountPicture: GestureDetector(
+                          child: new CircleAvatar(backgroundColor: Colors.black,child: IconButton(icon: Icon(Icons.person_add, color: Colors.white,size: 30,), onPressed: null)
+                          ),
+                        ),
+                        decoration: new BoxDecoration(
+                          color: Colors.white12,
+                        ),
+                      ),
+                    )
+                  ),
                 ],
-              )
-            )
+              ),
+            ),
+          ),
+          new Container(
+            child: Text('Perfil', style: TextStyle(fontSize: 20, color: Colors.black),),
+            color: Colors.white12,
+          ),
+          new Container(
+            height: 80.0,
+            margin: EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+                color: Color(0xff9FC5E8),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0),
+                  bottomRight: Radius.circular(30.0),
+                  bottomLeft: Radius.circular(30.0),
+                )
+            ),
+          ),
+          new Container(
+            height: 20.0,
+            color: Colors.white12,
+          ),
+          new Container(
+            child: Text('Detalles', style: TextStyle(fontSize: 20, color: Colors.black),),
+            color: Colors.white12,
+          ),
+          new Container(
+            height: 80.0,
+            margin: EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+                color: Color(0xff9FC5E8),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0),
+                  bottomRight: Radius.circular(30.0),
+                  bottomLeft: Radius.circular(30.0),
+                )
+            ),
+          ),
+          new Container(
+            height: 30.0,
+            color: Colors.white12,
+          ),
+          new Container(
+            child: ListTile(
+              title: new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: MaterialButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => new Comentarios()));},
+                      textColor: Colors.black,elevation: 0.2,child: new Text("Comentarios"),),
+                  ),
+                  Expanded(
+                    child: new Container(
+                      height: 20.0,
+                      color: Colors.white12,
+                    ),
+                  ),
+                  Expanded(
+                    child: new Container(
+                      height: 20.0,
+                      color: Colors.white12,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          new Container(
+            height: 20.0,
+            color: Colors.white12,
+          ),
+          new Container(
+            child: ListTile(
+              title: new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: new Container(
+                      height: 20.0,
+                      color: Colors.white12,
+                    ),
+                  ),
+                  Expanded(
+                    child: MaterialButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => new ModPerf()));},
+                      color: Color(0xff9FC5E8),textColor: Colors.white,elevation: 0.2,child: new Text("Modificar"),),
+                  ),
+                  Expanded(
+                    child: new Container(
+                      height: 20.0,
+                      color: Colors.white12,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
 * */

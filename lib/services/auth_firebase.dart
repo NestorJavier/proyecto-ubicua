@@ -15,9 +15,9 @@ class AuthFirebase {
         email: email,
         password: password,
       );
-      return authResult != null;
+      return authResult.user.uid;
     } catch (e) {
-      return e.message;
+      return e;
     }
   }
 

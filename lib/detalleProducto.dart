@@ -40,7 +40,7 @@ class DetailProductScreen extends StatelessWidget {
 
   Widget showProduct(BuildContext context){
     return Container(
-        height: 300,
+        height: MediaQuery.of(context).size.height/3,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
@@ -54,7 +54,7 @@ class DetailProductScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(left: 15.0, top: 8.0),
+              padding: EdgeInsets.only(left: 15.0, top: 15.0),
               child: Text(product.data['title'], style: TextStyle(
                   fontSize: 22.0, height: 1.3, fontWeight: FontWeight.bold)
               ),
@@ -101,17 +101,22 @@ class DetailProductScreen extends StatelessWidget {
 
   Widget buttomIntercambioCompra(bool intercambio){
     if(intercambio){
-      return ButtonTheme(
-        minWidth: 50.0,
-        height: 25.0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
-            side: BorderSide(color: Color(0xff9FC5E8))
-        ),
-        child: FlatButton(
-          child: Text('Contactar a vendedor', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12.0, color: Colors.black)),
-          color: Color(0xff9FC5E8),
-          onPressed: () { },
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.only(top: 20.0),
+          child: ButtonTheme(
+            minWidth: 50.0,
+            height: 35.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18.0),
+                side: BorderSide(color: Color(0xff9FC5E8))
+            ),
+            child: FlatButton(
+              child: Text('Contactar a vendedor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0, color: Colors.black)),
+              color: Color(0xff9FC5E8),
+              onPressed: () { },
+            ),
+          ),
         ),
       );
     }
@@ -119,23 +124,23 @@ class DetailProductScreen extends StatelessWidget {
       return Column(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(bottom: 5.0),
+            padding: EdgeInsets.only(bottom: 10.0),
             child: Row(
               children: <Widget>[
-                Text('Talla - ', style: subtitleStyle(), textAlign: TextAlign.justify,),
-                Text(product.data['talla'], style: dataStyle(), textAlign: TextAlign.justify,),
+                Text('Precio - ', style: subtitleStyle(), textAlign: TextAlign.justify,),
+                Text('\$'+product.data['precio']+'MXN', style: dataStyle(), textAlign: TextAlign.justify,),
               ],
             ),
           ),
           ButtonTheme(
             minWidth: 50.0,
-            height: 25.0,
+            height: 35.0,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
                 side: BorderSide(color: Color(0xff9FC5E8))
             ),
             child: FlatButton(
-              child: Text('Agregar a carrito', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12.0, color: Colors.black)),
+              child: Text('Agregar a carrito', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0, color: Colors.black)),
               color: Color(0xff9FC5E8),
               onPressed: () { },
             ),
@@ -154,7 +159,8 @@ class ImageProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height/2,
         decoration: BoxDecoration(
           border: Border.all(color: Color(0xFFF6B26B), width: 3),
         ),

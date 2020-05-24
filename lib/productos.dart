@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'productoNuevo.dart';
 import 'productoModifica.dart';
-import 'productoComentarios.dart';
 /*
  * Colores 
  * rgb(159,197,232)                   Azul
@@ -108,12 +107,7 @@ class SingleProduct extends StatelessWidget {
                     width: 95,
                       child: RaisedButton(
                         child: Image.asset(picture),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ComentariosScreen()));
-                      },
+                        onPressed: () { },
                     ),
                   ),                
                 ),

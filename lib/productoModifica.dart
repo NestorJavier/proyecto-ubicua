@@ -18,11 +18,11 @@ class ModificaProducto extends StatefulWidget {
 }
 
 class ModificaProductoClass extends State<ModificaProducto> {
-  final txtecNombre = TextEditingController();
-  final txtecDescripcion = TextEditingController();
-  final txtecTalla = TextEditingController();
-  final txtecColor = TextEditingController();
-  final txtecPrecio = TextEditingController();
+  var txtecNombre = TextEditingController();
+  var txtecDescripcion = TextEditingController();
+  var txtecTalla = TextEditingController();
+  var txtecColor = TextEditingController();
+  var txtecPrecio = TextEditingController();
   final databaseReference = Firestore.instance;
   File uploadImage;
   var dbHelper = DBHelper();
@@ -44,6 +44,8 @@ class ModificaProductoClass extends State<ModificaProducto> {
   bool intercambio = false;
 
   Widget build(BuildContext context) {
+    loadInfo();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff9FC5E8),
@@ -51,142 +53,11 @@ class ModificaProductoClass extends State<ModificaProducto> {
       ),
       body: SingleChildScrollView(
           child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: <Widget>[
-            Text(
-              'Nombre',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.orange,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(0.0),
-              margin: EdgeInsets.all(10.0),
-              width: 340,
-              child: TextField(
-                controller: txtecNombre,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            Text(
-              'Descripción',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.orange,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(0.0),
-              margin: EdgeInsets.all(10.0),
-              width: 340,
-              height: 160,
-              child: TextField(
-                controller: txtecDescripcion,
-                maxLines: 6,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            AgregaFoto(
-              updateImageState: (File image) {
-                setState(() {
-                  uploadImage = image;
-                });
-              },
-              url: widget.product["imageURL"],
-            ),
-            Column(
-              children: <Widget>[
-                ListTile(
-                  contentPadding: EdgeInsets.all(0.0),
-                  title: const Text(
-                    'Femenino',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  leading: Radio(
-                    activeColor: Colors.orange,
-                    value: Genero.femenino,
-                    groupValue: _genero,
-                    onChanged: (Genero value) {
-                      setState(() {
-                        _genero = value;
-                      });
-                    },
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.all(0.0),
-                  title: const Text(
-                    'Masculino',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  leading: Radio(
-                    activeColor: Colors.orange,
-                    value: Genero.masculino,
-                    groupValue: _genero,
-                    onChanged: (Genero value) {
-                      setState(() {
-                        _genero = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.all(0.0),
-              margin: EdgeInsets.only(right: 200.0),
-              width: 100,
-              height: 50,
-              child: DropdownButton<String>(
-                value: sCategoria,
-                icon: Icon(
-                  Icons.arrow_downward,
-                  color: Color.fromRGBO(159, 197, 232, 1.0),
-                ),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: Colors.orange),
-                underline: Container(
-                  height: 2,
-                  color: Color.fromRGBO(159, 197, 232, 1.0),
-                ),
-                onChanged: (String newValue) {
-                  setState(() {
-                    sCategoria = newValue;
-                  });
-                },
-                items: <String>[
-                  'Calzado',
-                  'Mujer',
-                  'Accesorios',
-                  'Hombre',
-                  'Niños'
-                ].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ),
-            Row(
+            padding: EdgeInsets.all(20),
+            child: Column(
               children: <Widget>[
                 Text(
-                  '    Talla',
+                  'Nombre',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontSize: 16,
@@ -196,21 +67,16 @@ class ModificaProductoClass extends State<ModificaProducto> {
                 Container(
                   padding: EdgeInsets.all(0.0),
                   margin: EdgeInsets.all(10.0),
-                  width: 90,
-                  height: 30,
+                  width: 340,
                   child: TextField(
-                    controller: txtecTalla,
+                    controller: txtecNombre,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
                 Text(
-                  '    Color',
+                  'Descripción',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontSize: 16,
@@ -220,127 +86,271 @@ class ModificaProductoClass extends State<ModificaProducto> {
                 Container(
                   padding: EdgeInsets.all(0.0),
                   margin: EdgeInsets.all(10.0),
-                  width: 90,
-                  height: 30,
+                  width: 340,
+                  height: 160,
                   child: TextField(
-                    controller: txtecColor,
+                    controller: txtecDescripcion,
+                    maxLines: 6,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-              ],
-            ),
-            Column(
-              children: <Widget>[
-                ListTile(
-                  contentPadding: EdgeInsets.all(0.0),
-                  title: const Text(
-                    'Intercambio',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  leading: Radio(
-                    activeColor: Colors.orange,
-                    value: true,
-                    groupValue: intercambio,
-                    onChanged: (bool value) {
-                      setState(() {
-                        intercambio = value;
-                      });
-                    },
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.all(0.0),
-                  title: const Text(
-                    'Venta',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  leading: Radio(
-                    activeColor: Colors.orange,
-                    value: false,
-                    groupValue: intercambio,
-                    onChanged: (bool value) {
-                      setState(() {
-                        intercambio = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Text(
-                  '    Precio',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.orange,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(0.0),
-                  margin: EdgeInsets.all(10.0),
-                  width: 90,
-                  height: 30,
-                  child: TextField(
-                    controller: txtecPrecio,
-                    enabled: !intercambio,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            ButtonTheme(
-              minWidth: 150.0,
-              height: 50.0,
-              child: FlatButton(
-                child: Text(
-                  'Guardar',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-                color: Color(0xff9FC5E8),
-                onPressed: () {
-                  dbHelper.getPersonUID().then((res) {
+                AgregaFoto(
+                  updateImageState: (File image) {
                     setState(() {
-                      personUID = res;
-
-                      updateProduct(
-                          documentIndex,
-                          personUID,
-                          txtecNombre.text,
-                          txtecDescripcion.text,
-                          genero(_genero),
-                          sCategoria,
-                          intercambio,
-                          precio(intercambio),
-                          txtecTalla.text,
-                          txtecColor.text,
-                          uploadImage);
-                      txtecNombre.text = "";
-                      txtecDescripcion.text = "";
-                      txtecPrecio.text = "";
-                      txtecTalla.text = "";
-                      txtecColor.text = "";
-                      setState(() {});
+                      uploadImage = image;
                     });
-                  });
-                },
-              ),
+                  },
+                  url: widget.product["imageURL"],
+                ),
+                Column(
+                  children: <Widget>[
+                    ListTile(
+                      contentPadding: EdgeInsets.all(0.0),
+                      title: const Text(
+                        'Femenino',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      leading: Radio(
+                        activeColor: Colors.orange,
+                        value: Genero.femenino,
+                        groupValue: _genero,
+                        onChanged: (Genero value) {
+                          setState(() {
+                            _genero = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.all(0.0),
+                      title: const Text(
+                        'Masculino',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      leading: Radio(
+                        activeColor: Colors.orange,
+                        value: Genero.masculino,
+                        groupValue: _genero,
+                        onChanged: (Genero value) {
+                          setState(() {
+                            _genero = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: EdgeInsets.all(0.0),
+                  margin: EdgeInsets.only(right: 200.0),
+                  width: 100,
+                  height: 50,
+                  child: DropdownButton<String>(
+                    value: sCategoria,
+                    icon: Icon(
+                      Icons.arrow_downward,
+                      color: Color.fromRGBO(159, 197, 232, 1.0),
+                    ),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.orange),
+                    underline: Container(
+                      height: 2,
+                      color: Color.fromRGBO(159, 197, 232, 1.0),
+                    ),
+                    onChanged: (String newValue) {
+                      setState(() {
+                        sCategoria = newValue;
+                      });
+                    },
+                    items: <String>[
+                      'Calzado',
+                      'Mujer',
+                      'Accesorios',
+                      'Hombre',
+                      'Niños'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '    Talla',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(0.0),
+                      margin: EdgeInsets.all(10.0),
+                      width: 90,
+                      height: 30,
+                      child: TextField(
+                        controller: txtecTalla,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '    Color',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(0.0),
+                      margin: EdgeInsets.all(10.0),
+                      width: 90,
+                      height: 30,
+                      child: TextField(
+                        controller: txtecColor,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    ListTile(
+                      contentPadding: EdgeInsets.all(0.0),
+                      title: const Text(
+                        'Intercambio',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      leading: Radio(
+                        activeColor: Colors.orange,
+                        value: true,
+                        groupValue: intercambio,
+                        onChanged: (bool value) {
+                          setState(() {
+                            intercambio = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.all(0.0),
+                      title: const Text(
+                        'Venta',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      leading: Radio(
+                        activeColor: Colors.orange,
+                        value: false,
+                        groupValue: intercambio,
+                        onChanged: (bool value) {
+                          setState(() {
+                            intercambio = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '    Precio',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(0.0),
+                      margin: EdgeInsets.all(10.0),
+                      width: 90,
+                      height: 30,
+                      child: TextField(
+                        controller: txtecPrecio,
+                        enabled: !intercambio,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                ButtonTheme(
+                  minWidth: 150.0,
+                  height: 50.0,
+                  child: FlatButton(
+                    child: Text(
+                      'Guardar',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    color: Color(0xff9FC5E8),
+                    onPressed: () {
+                      dbHelper.getPersonUID().then((res) {
+                        setState(() {
+                          personUID = res;
+
+                          updateProduct(
+                              documentIndex,
+                              personUID,
+                              txtecNombre.text,
+                              txtecDescripcion.text,
+                              genero(_genero),
+                              sCategoria,
+                              intercambio,
+                              precio(intercambio),
+                              txtecTalla.text,
+                              txtecColor.text,
+                              uploadImage);
+                          txtecNombre.text = "";
+                          txtecDescripcion.text = "";
+                          txtecPrecio.text = "";
+                          txtecTalla.text = "";
+                          txtecColor.text = "";
+                          setState(() {});
+                        });
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      )),
+          )),
     );
+  }
+
+  void loadInfo() {
+    txtecNombre.text = widget.product['title'];
+    txtecDescripcion.text = widget.product['description'];
+    txtecTalla.text = widget.product['talla'];
+    txtecColor.text = widget.product['color'];
+    txtecPrecio.text = widget.product['precio'];
   }
 
   void updateProduct(

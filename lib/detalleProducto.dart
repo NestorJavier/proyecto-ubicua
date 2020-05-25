@@ -92,18 +92,18 @@ class DetailProductScreen extends StatelessWidget {
             ),
             Container(
               margin: const EdgeInsets.only(top: 5.0, left: 8.0, right: 8.0),
-              child: buttomIntercambioCompra(product.data['intercambio'])
+              child: buttomIntercambioCompra(product.data['intercambio'],  MediaQuery.of(context).size.width)
             )
           ],
         )
     );
   }
 
-  Widget buttomIntercambioCompra(bool intercambio){
+  Widget buttomIntercambioCompra(bool intercambio, double tam){
     if(intercambio){
       return Center(
         child: Padding(
-          padding: EdgeInsets.only(top: 20.0),
+          padding: EdgeInsets.only(top: tam/100),
           child: ButtonTheme(
             minWidth: 50.0,
             height: 35.0,
@@ -124,7 +124,7 @@ class DetailProductScreen extends StatelessWidget {
       return Column(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(bottom: 10.0),
+            padding: EdgeInsets.only(bottom: tam/100),
             child: Row(
               children: <Widget>[
                 Text('Precio - ', style: subtitleStyle(), textAlign: TextAlign.justify,),

@@ -57,8 +57,8 @@ class Categorias extends StatelessWidget{
                                 child: Column(
                                   children: <Widget>[
                                     Container(
-                                      width: 120,
-                                      height: 120,
+                                      width:  MediaQuery.of(context).size.width/3,
+                                      height: MediaQuery.of(context).size.height/5,
                                       child: Image.network(snapshot.data[index].data["imageURL"]),
                                     ),
                                   ],

@@ -376,8 +376,9 @@ class NuevoProductoClass extends State<NuevoProducto> {
       // Cancel your subscription when done.
       await uploadTask.onComplete;
       streamSubscription.cancel();
+      var url = (await storageReference.getDownloadURL()).toString();
       ref.setData({
-        'imageURL': (await storageReference.getDownloadURL()).toString(),
+        'imageURL': url,
       }, merge: true);
     }
     Navigator.pop(context);

@@ -34,10 +34,6 @@ class DBHelper {
   Future getPersonUID() async {
     var dbClient = await db;
     List<Map> list = await dbClient.rawQuery('SELECT * FROM PersonaID');
-
-    for (int i = 0; i < list.length; i++){
-      print(list[i]["uid"]);
-    }
     return (list[0]["uid"]).toString();
   }
 
@@ -51,7 +47,6 @@ class DBHelper {
     var dbClient = await db;
     await dbClient.transaction((txn) async {
       var query = "INSERT INTO PersonaID (uid) VALUES ('$uid')";
-      print("Query : " + query);
       return await txn.rawInsert(query);
     });
   }

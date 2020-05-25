@@ -2,6 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'productoNuevo.dart';
 import 'productoModifica.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+import 'DBHelper.dart';
+
 /*
  * Colores 
  * rgb(159,197,232)                   Azul
@@ -10,62 +14,69 @@ import 'productoModifica.dart';
  * 
  *  
  */
-class ProductosScreen extends StatelessWidget {
+
+class ProductosScreen extends StatefulWidget {
+  @override
+  ProductosScreenClass createState() => new ProductosScreenClass();
+}
+
+class ProductosScreenClass extends State<ProductosScreen> {
   TextStyle getTextStyle() {
     return new TextStyle(
         fontWeight: FontWeight.w400, fontSize: 16.0, color: Colors.black);
   }
 
+  var dbHelper = DBHelper();
+  final databaseReference = Firestore.instance;
+  String personUID = '';
+
   @override
   Widget build(BuildContext context) {
-    var myProductList = [
-      {
-        "name": "Camisa",
-        "picture": "img/Camisa.png",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation",
-      },
-      {
-        "name": "falda",
-        "picture": "img/falda.jpg",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation",
-      },
-      {
-        "name": "Pantalon",
-        "picture": "img/Pantalon.png",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation",
-      },
-      {
-        "name": "Playera",
-        "picture": "img/playera.jpg",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation",
-      },
-      {
-        "name": "Playera polo",
-        "picture": "img/polo.jpg",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation",
-      },
-      {
-        "name": "Sudadera",
-        "picture": "img/sudadera.jpeg",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation",
-      },
-    ];
+    var error =
+        "https://firebasestorage.googleapis.com/v0/b/ubicua-469e6.appspot.com/o/error%2F505.jpg?alt=media&token=864ad65b-a4b6-4616-b607-b76e3b51231a";
+    var image = "";
+    var data;
+    dbHelper.getPersonUID().then((res) {
+      setState(() {
+        personUID = res;
+      });
+    });
 
-    return ListView.builder(
-      itemCount: (myProductList.length + 1),
-      itemBuilder: (BuildContext context, int index) {
-        if (index == 0) {
-          return ListTile(
-            title: AgregaProducto(),
-          );
+    return StreamBuilder(
+      stream: databaseReference
+          .collection('productos')
+          .where('personaUID', isEqualTo: personUID)
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.data == null) {
+          return Center(
+              child: CircularProgressIndicator(
+                  backgroundColor: Color(0xff9FC5E8), strokeWidth: 4));
         } else {
-          index--;
-          return ListTile(
-            title: SingleProduct(
-                myProductList[index]['name'],
-                myProductList[index]['picture'],
-                myProductList[index]['description']),
-          );
+          return SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: ListView.builder(
+                itemCount: (snapshot.data.documents.length + 1),
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) {
+                    return ListTile(
+                      title: AgregaProducto(),
+                    );
+                  } else {
+                    index--;
+                    data = snapshot.data.documents[index].data;
+                    data["index"] = index;
+                    data["documentId"] =
+                        snapshot.data.documents[index].documentID;
+                    if (data["imageURL"].toString() == "null") {
+                      data["imageURL"] = error;
+                    }
+                    return ListTile(
+                      title: SingleProduct(data),
+                    );
+                  }
+                },
+              ));
         }
       },
     );
@@ -73,12 +84,10 @@ class ProductosScreen extends StatelessWidget {
 }
 
 class SingleProduct extends StatelessWidget {
-  final name;
-  final picture;
-  final description;
+  final product;
+  final databaseReference = Firestore.instance;
 
-  SingleProduct(this.name, this.picture, this.description);
-
+  SingleProduct(this.product);
   TextStyle descricionStyle() {
     return new TextStyle(fontSize: 13.0, height: 1.3);
   }
@@ -103,13 +112,8 @@ class SingleProduct extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(right: 5),
                   color: Color.fromRGBO(159, 197, 232, 0.5),
-                  child: SizedBox(
-                    width: 95,
-                      child: RaisedButton(
-                        child: Image.asset(picture),
-                        onPressed: () { },
-                    ),
-                  ),                
+                  child: Image.network(product["imageURL"],
+                      fit: BoxFit.fill, width: 120, height: 120),
                 ),
                 Expanded(
                   child: Column(
@@ -117,11 +121,12 @@ class SingleProduct extends StatelessWidget {
                     children: <Widget>[
                       Container(
                         margin: const EdgeInsets.only(top: 5.0),
-                        child: Text(name, style: nombreStyle()),
+                        child: Text(product["title"], style: nombreStyle()),
                       ),
                       Container(
                         margin: const EdgeInsets.only(top: 5.0),
-                        child: Text(description, style: descricionStyle()),
+                        child: Text(product["description"],
+                            style: descricionStyle()),
                       ),
                     ],
                   ),
@@ -141,14 +146,25 @@ class SingleProduct extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ModificaProducto()));
+                                    builder: (context) =>
+                                        ModificaProducto(product: product)));
                           }),
                       IconButton(
                           icon: Icon(
                             Icons.delete,
                             color: Colors.black,
                           ),
-                          onPressed: () {}),
+                          onPressed: () {
+                            //["documentId"]
+                            try {
+                              databaseReference
+                                  .collection('productos')
+                                  .document(product["documentId"])
+                                  .delete();
+                            } catch (e) {
+                              print(e.toString());
+                            }
+                          }),
                     ])),
               ],
             )));

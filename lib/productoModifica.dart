@@ -1,53 +1,47 @@
+import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
+import 'DBHelper.dart';
+
+enum Genero { femenino, masculino }
 
 class ModificaProducto extends StatefulWidget {
+  ModificaProducto({Key key, @required this.product}) : super(key: key);
+  final product;
   @override
   ModificaProductoClass createState() => new ModificaProductoClass();
 }
 
-class AgregaFoto extends StatefulWidget {
+class ModificaProductoClass extends State<ModificaProducto> {
+  final txtecNombre = TextEditingController();
+  final txtecDescripcion = TextEditingController();
+  final txtecTalla = TextEditingController();
+  final txtecColor = TextEditingController();
+  final txtecPrecio = TextEditingController();
+  final databaseReference = Firestore.instance;
+  File uploadImage;
+  var dbHelper = DBHelper();
+  int documentIndex = 0;
+
   @override
-  AgregaFotoClass createState() => new AgregaFotoClass();
-}
-
-class ModificaProductoClass extends State {
-  //final String nombre;
-
-  // En el constructor, se requiere el objeto nombre
-  //NuevoProductoClass({Key key, @required this.nombre}) : super(key: key);
-  bool isCheckedInter = false;
-  bool isCheckedVenta = false;
-
-  void toggleCheckboxVenta(bool value) {
-    if (isCheckedVenta == false) {
-      // Put your code here which you want to execute on CheckBox Checked event.
-      setState(() {
-        isCheckedVenta = true;
-      });
-    } else {
-      // Put your code here which you want to execute on CheckBox Un-Checked event.
-      setState(() {
-        isCheckedVenta = false;
-      });
-    }
+  void dispose() {
+    txtecNombre.dispose();
+    txtecDescripcion.dispose();
+    txtecTalla.dispose();
+    txtecColor.dispose();
+    txtecPrecio.dispose();
+    super.dispose();
   }
 
-  void toggleCheckboxIntercambio(bool value) {
-    if (isCheckedInter == false) {
-      // Put your code here which you want to execute on CheckBox Checked event.
-      setState(() {
-        isCheckedInter = true;
-      });
-    } else {
-      // Put your code here which you want to execute on CheckBox Un-Checked event.
-      setState(() {
-        isCheckedInter = false;
-      });
-    }
-  }
+  String personUID = '';
+  String sCategoria = 'Calzado';
+  Genero _genero = Genero.femenino;
+  bool intercambio = false;
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,157 +50,420 @@ class ModificaProductoClass extends State {
         title: Text("Modifica Producto"),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              Text(
-                'Nombre',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.orange,
+          child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: <Widget>[
+            Text(
+              'Nombre',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.orange,
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(0.0),
+              margin: EdgeInsets.all(10.0),
+              width: 340,
+              child: TextField(
+                controller: txtecNombre,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(0.0),
-                margin: EdgeInsets.all(10.0),
-                width: 340,
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+            ),
+            Text(
+              'Descripción',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.orange,
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(0.0),
+              margin: EdgeInsets.all(10.0),
+              width: 340,
+              height: 160,
+              child: TextField(
+                controller: txtecDescripcion,
+                maxLines: 6,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            AgregaFoto(
+              updateImageState: (File image) {
+                setState(() {
+                  uploadImage = image;
+                });
+              },
+              url: widget.product["imageURL"],
+            ),
+            Column(
+              children: <Widget>[
+                ListTile(
+                  contentPadding: EdgeInsets.all(0.0),
+                  title: const Text(
+                    'Femenino',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orange,
+                    ),
                   ),
-                ),
-              ),
-              Text(
-                'Descripción',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.orange,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(0.0),
-                margin: EdgeInsets.all(10.0),
-                width: 340,
-                height: 160,
-                child: TextField(
-                  maxLines: 6,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              AgregaFoto(),
-              Row(
-                children: <Widget>[
-                  Checkbox(
-                    value: isCheckedInter,
-                    onChanged: (value) {
-                      toggleCheckboxIntercambio(value);
-                    },
+                  leading: Radio(
                     activeColor: Colors.orange,
-                    checkColor: Colors.white,
-                    tristate: false,
+                    value: Genero.femenino,
+                    groupValue: _genero,
+                    onChanged: (Genero value) {
+                      setState(() {
+                        _genero = value;
+                      });
+                    },
                   ),
-                  Text(
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.all(0.0),
+                  title: const Text(
+                    'Masculino',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  leading: Radio(
+                    activeColor: Colors.orange,
+                    value: Genero.masculino,
+                    groupValue: _genero,
+                    onChanged: (Genero value) {
+                      setState(() {
+                        _genero = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              padding: EdgeInsets.all(0.0),
+              margin: EdgeInsets.only(right: 200.0),
+              width: 100,
+              height: 50,
+              child: DropdownButton<String>(
+                value: sCategoria,
+                icon: Icon(
+                  Icons.arrow_downward,
+                  color: Color.fromRGBO(159, 197, 232, 1.0),
+                ),
+                iconSize: 24,
+                elevation: 16,
+                style: TextStyle(color: Colors.orange),
+                underline: Container(
+                  height: 2,
+                  color: Color.fromRGBO(159, 197, 232, 1.0),
+                ),
+                onChanged: (String newValue) {
+                  setState(() {
+                    sCategoria = newValue;
+                  });
+                },
+                items: <String>[
+                  'Calzado',
+                  'Mujer',
+                  'Accesorios',
+                  'Hombre',
+                  'Niños'
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ),
+            Row(
+              children: <Widget>[
+                Text(
+                  '    Talla',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.orange,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(0.0),
+                  margin: EdgeInsets.all(10.0),
+                  width: 90,
+                  height: 30,
+                  child: TextField(
+                    controller: txtecTalla,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[
+                Text(
+                  '    Color',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.orange,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(0.0),
+                  margin: EdgeInsets.all(10.0),
+                  width: 90,
+                  height: 30,
+                  child: TextField(
+                    controller: txtecColor,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                ListTile(
+                  contentPadding: EdgeInsets.all(0.0),
+                  title: const Text(
                     'Intercambio',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.orange,
                     ),
                   ),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Checkbox(
-                    value: isCheckedVenta,
-                    onChanged: (value) {
-                      toggleCheckboxVenta(value);
-                    },
+                  leading: Radio(
                     activeColor: Colors.orange,
-                    checkColor: Colors.white,
-                    tristate: false,
+                    value: true,
+                    groupValue: intercambio,
+                    onChanged: (bool value) {
+                      setState(() {
+                        intercambio = value;
+                      });
+                    },
                   ),
-                  Text(
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.all(0.0),
+                  title: const Text(
                     'Venta',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.orange,
                     ),
                   ),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Text(
-                    '    Precio',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orange,
+                  leading: Radio(
+                    activeColor: Colors.orange,
+                    value: false,
+                    groupValue: intercambio,
+                    onChanged: (bool value) {
+                      setState(() {
+                        intercambio = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[
+                Text(
+                  '    Precio',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.orange,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(0.0),
+                  margin: EdgeInsets.all(10.0),
+                  width: 90,
+                  height: 30,
+                  child: TextField(
+                    controller: txtecPrecio,
+                    enabled: !intercambio,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.all(0.0),
-                    margin: EdgeInsets.all(10.0),
-                    width: 90,
-                    height: 30,
-                    child: TextField(
-                      enabled: isCheckedVenta,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+            ButtonTheme(
+              minWidth: 150.0,
+              height: 50.0,
+              child: FlatButton(
+                child: Text(
+                  'Guardar',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+                color: Color(0xff9FC5E8),
+                onPressed: () {
+                  dbHelper.getPersonUID().then((res) {
+                    setState(() {
+                      personUID = res;
+
+                      updateProduct(
+                          documentIndex,
+                          personUID,
+                          txtecNombre.text,
+                          txtecDescripcion.text,
+                          genero(_genero),
+                          sCategoria,
+                          intercambio,
+                          precio(intercambio),
+                          txtecTalla.text,
+                          txtecColor.text,
+                          uploadImage);
+                      txtecNombre.text = "";
+                      txtecDescripcion.text = "";
+                      txtecPrecio.text = "";
+                      txtecTalla.text = "";
+                      txtecColor.text = "";
+                      setState(() {});
+                    });
+                  });
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
+      )),
     );
+  }
+
+  void updateProduct(
+      int index,
+      String personUid,
+      var sNombre,
+      var sDescripcion,
+      var sGenero,
+      var sCategoria,
+      bool bIntercambio,
+      var sPrecio,
+      var sTalla,
+      var sColor,
+      File image) async {
+    String key;
+
+    if (image != null) {
+      var imageName = Uuid().v1();
+      var path = "/users/$personUid/$imageName.jpg";
+
+      final StorageReference storageReference =
+          FirebaseStorage().ref().child(path);
+      final StorageUploadTask uploadTask = storageReference.putFile(image);
+      final StreamSubscription<StorageTaskEvent> streamSubscription =
+          uploadTask.events.listen((event) {
+        // You can use this to notify yourself or your user in any kind of way.
+        // For example: you could use the uploadTask.events stream in a StreamBuilder instead
+        // to show your user what the current status is. In that case, you would not need to cancel any
+        // subscription as StreamBuilder handles this automatically.
+
+        // Here, every StorageTaskEvent concerning the upload is printed to the logs.
+        print('EVENT ${event.type}');
+      });
+      // Cancel your subscription when done.
+      await uploadTask.onComplete;
+      streamSubscription.cancel();
+      var url = (await storageReference.getDownloadURL()).toString();
+
+      databaseReference
+          .collection("productos")
+          .where('personaUID', isEqualTo: personUid)
+          .snapshots()
+          .listen((data) {
+        key = data.documents[index].documentID.toString();
+        databaseReference.collection('productos').document(key).updateData({
+          'title': sNombre,
+          'description': sDescripcion,
+          'genero': sGenero,
+          'categoria': sCategoria,
+          'intercambio': bIntercambio,
+          'precio': sPrecio,
+          'talla': sTalla,
+          'color': sColor,
+          'imageURL': url,
+        });
+      });
+    } else {
+      databaseReference
+          .collection("productos")
+          .where('personaUID', isEqualTo: personUid)
+          .snapshots()
+          .listen((data) {
+        key = data.documents[0].documentID.toString();
+        databaseReference.collection('productos').document(key).updateData({
+          'title': sNombre,
+          'description': sDescripcion,
+          'genero': sGenero,
+          'categoria': sCategoria,
+          'intercambio': bIntercambio,
+          'precio': sPrecio,
+          'talla': sTalla,
+          'color': sColor,
+        });
+      });
+    }
+    Navigator.pop(context);
+  }
+
+  genero(result) {
+    switch (result) {
+      case Genero.femenino:
+        return "femenino";
+        break;
+      case Genero.masculino:
+        return "masculino";
+        break;
+    }
+  }
+
+  precio(bool intercambio) {
+    if (intercambio) {
+      return "";
+    } else {
+      return txtecPrecio.text;
+    }
   }
 }
 
-class AgregaFotoClass extends State {
-  Future<File> imageFile;
+class AgregaFoto extends StatefulWidget {
+  AgregaFoto({Key key, this.updateImageState, this.url}) : super(key: key);
+  final Function(File) updateImageState;
+  final String url;
+  @override
+  AgregaFotoClass createState() => new AgregaFotoClass();
+}
 
-  pickImageFromGallery(ImageSource source) {
+class AgregaFotoClass extends State<AgregaFoto> {
+  Future<File> imageFile;
+  File _image;
+
+  Future getImage(ImageSource source) async {
+    var image = await ImagePicker.pickImage(source: source);
     setState(() {
-      imageFile = ImagePicker.pickImage(source: source);
+      _image = image;
     });
+    widget.updateImageState(image);
   }
 
   Widget showImage() {
-    return FutureBuilder<File>(
-      future: imageFile,
-      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.data != null) {
-          return Image.file(
-            snapshot.data,
-            width: 300,
-            height: 300,
-          );
-        } else if (snapshot.error != null) {
-          return const Text(
-            'Error al cargar la imagen',
-            textAlign: TextAlign.center,
-          );
-        } else {
-          return const Text(
-            'Imagen no seleccionada',
-            textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.orange,
-              ),
-          );
-        }
-      },
+    return Center(
+      child: _image == null
+          ? Image.network(widget.url, fit: BoxFit.fill, height: 200)
+          : Image.file(_image),
     );
   }
 
@@ -229,7 +486,7 @@ class AgregaFotoClass extends State {
                   size: 25,
                 ),
                 onPressed: () {
-                  pickImageFromGallery(ImageSource.gallery);
+                  getImage(ImageSource.gallery);
                 },
                 tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
               ),
@@ -246,7 +503,7 @@ class AgregaFotoClass extends State {
               ),
             ),
           ])),
-          showImage(),
+      showImage(),
     ]);
   }
 }

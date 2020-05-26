@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'detalleProducto.dart';
 import 'Categorias.dart';
+import 'DBHelper.dart';
 
 class PrincipalScreen extends StatefulWidget{
   PrincipalScreen({Key key}) : super(key: key);
@@ -13,8 +14,10 @@ class PrincipalScreen extends StatefulWidget{
 
 class _PrincipalScreenState extends State<PrincipalScreen>{
   final databaseReference = Firestore.instance;
+  var dbHelper = DBHelper();
 
   String category = '';
+  String personUID = '';
 
   TextStyle getTextStyle() {
     return new TextStyle(fontWeight: FontWeight.w400, fontSize: 16.0, color: Colors.black);
@@ -22,7 +25,9 @@ class _PrincipalScreenState extends State<PrincipalScreen>{
 
   @override
   Widget build(BuildContext context) {
-
+    dbHelper.getPersonUID().then((res) {
+      personUID = res;
+    });
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -71,16 +76,22 @@ class _PrincipalScreenState extends State<PrincipalScreen>{
                 Center(child: CircularProgressIndicator( backgroundColor:Color(0xff9FC5E8), strokeWidth: 4));
             }
             else{
+              var products = [];
+              for (var i = 0; i < snapshot.data.documents.length; i++) {
+                if(snapshot.data.documents[i].data["personaUID"] != personUID) {
+                  products.add(snapshot.data.documents[i]);
+                }
+              }
               return SizedBox(
                 height: MediaQuery.of(context).size.height-195,
                 child: Padding(
                   padding: EdgeInsets.only(left: 10.0, right: 10.0),
                   child: GridView.builder(
-                      itemCount: snapshot.data.documents.length,
+                      itemCount: products.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,
                         crossAxisSpacing: 10.0, mainAxisSpacing: 15.0),
                       itemBuilder: (context, index){
-                        return SingleProduct(snapshot.data.documents[index]);
+                          return SingleProduct(products[index]);
                       }
                   )
                 ),
@@ -103,16 +114,22 @@ class _PrincipalScreenState extends State<PrincipalScreen>{
               );
             }
             else{
+              var products = [];
+              for (var i = 0; i < snapshot.data.documents.length; i++) {
+                if(snapshot.data.documents[i].data["personaUID"] != personUID) {
+                  products.add(snapshot.data.documents[i]);
+                }
+              }
               return SizedBox(
                 height: MediaQuery.of(context).size.height-195,
                 child: Padding(
                     padding: EdgeInsets.only(left: 10.0, right: 10.0),
                     child: GridView.builder(
-                        itemCount: snapshot.data.documents.length,
+                        itemCount: products.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,
                             crossAxisSpacing: 10.0, mainAxisSpacing: 15.0),
                         itemBuilder: (context, index){
-                          return SingleProduct(snapshot.data.documents[index]);
+                          return SingleProduct(products[index]);
                         }
                     )
                 ),

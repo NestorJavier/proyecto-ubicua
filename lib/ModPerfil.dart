@@ -56,13 +56,6 @@ class _ModPerfState extends State<ModPerf> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 60.0),
-                  child: IconButton(
-                    icon: Icon(Icons.camera_alt, size: 30.0),
-                    onPressed: () { },
-                  ),
-                ),
               ],
             ),
             SizedBox(height: 20.0),

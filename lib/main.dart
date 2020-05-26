@@ -500,18 +500,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         actions: <Widget>[
           Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CartScreen()));
-                },
-                child: Icon(
-                  Icons.shopping_basket,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              )),
+              padding: EdgeInsets.only(right: 50.0)),
         ],
       ),
       bottomNavigationBar: Theme(

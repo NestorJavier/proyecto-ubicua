@@ -89,7 +89,7 @@ class SingleProduct extends StatelessWidget {
 
   SingleProduct(this.product);
   TextStyle descricionStyle() {
-    return new TextStyle(fontSize: 13.0, height: 1.3);
+    return new TextStyle(fontSize: 10.5);
   }
 
   TextStyle nombreStyle() {

@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'resumen_compra.dart';
 import 'Principal.dart';
+import 'promociones.dart';
 import 'productos.dart';
 import 'TermCond.dart';
 import 'Perfil.dart';
@@ -453,9 +454,7 @@ class _MainScreenState extends State<MainScreen> {
   var dbHelper = DBHelper();
   static List<Widget> _widgetOptions = <Widget>[
     PrincipalScreen(),
-    Text(
-      'Index 1: Promociones',
-    ),
+    PromocionesScreen(),
     ProductosScreen(),
     Perfil()
   ];

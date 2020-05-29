@@ -92,37 +92,18 @@ class DetailProductScreen extends StatelessWidget {
             ),
             Container(
               margin: const EdgeInsets.only(top: 5.0, left: 8.0, right: 8.0),
-              child: buttomIntercambioCompra(product.data['intercambio'],  MediaQuery.of(context).size.width)
+              child: buttomIntercambio(product.data['intercambio'],  MediaQuery.of(context).size.width)
             )
           ],
         )
     );
   }
 
-  Widget buttomIntercambioCompra(bool intercambio, double tam){
-    if(intercambio){
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.only(top: tam/100),
-          child: ButtonTheme(
-            minWidth: 50.0,
-            height: 35.0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
-                side: BorderSide(color: Color(0xff9FC5E8))
-            ),
-            child: FlatButton(
-              child: Text('Contactar a vendedor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0, color: Colors.black)),
-              color: Color(0xff9FC5E8),
-              onPressed: () { },
-            ),
-          ),
-        ),
-      );
-    }
-    else{
-      return Column(
+  Widget buttomIntercambio(bool intercambio, double tam){
+    return Center(
+      child: Column(
         children: <Widget>[
+          !intercambio ?
           Padding(
             padding: EdgeInsets.only(bottom: tam/100),
             child: Row(
@@ -131,7 +112,7 @@ class DetailProductScreen extends StatelessWidget {
                 Text('\$'+product.data['precio']+'MXN', style: dataStyle(), textAlign: TextAlign.justify,),
               ],
             ),
-          ),
+          ) : Text(""),
           ButtonTheme(
             minWidth: 50.0,
             height: 35.0,
@@ -140,14 +121,14 @@ class DetailProductScreen extends StatelessWidget {
                 side: BorderSide(color: Color(0xff9FC5E8))
             ),
             child: FlatButton(
-              child: Text('Agregar a carrito', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0, color: Colors.black)),
+              child: Text('Contactar vendedor', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0, color: Colors.black)),
               color: Color(0xff9FC5E8),
               onPressed: () { },
             ),
           )
         ],
-      );
-    }
+      ),
+    );
   }
 }
 
